@@ -1,5 +1,5 @@
-import { useContext } from 'react'
-import { Mastery } from 'interfaces/player'
+import { useContext, useEffect } from 'react'
+import { Mastery, Player } from 'interfaces/player'
 import { styles } from 'styles/styles.config'
 import { parse_k_num } from 'utils'
 import { Container, EmptyPlayers, PlayerImg } from 'components'
@@ -12,17 +12,46 @@ import Image from 'next/image'
 // Visualize each player in a table
 // Each row of the table is a champ with his stats
 export default function Masteries() {
-    const { players } = useContext(PlayersContext)
+    const { setPlayers, players } = useContext(PlayersContext)
 
+    
+	/* TODO: Order players by total mastery. Instead of players.map(), make:
+    ordered_players = players.sort
+    and then:
+    ordered_players.map( // etc... )
+	*/
+
+
+    // By default force players to be []
+	if (players === undefined) {
+		setPlayers([])
+	}
+    //Highest to lowest
+    
+    useEffect(() => {
+        if (players){
+            const rr2=[...players]
+            console.log(rr2)
+            
+            if(rr2.length >= 1){
+               rr2.sort((player_a: Player ,player_b: Player) =>{
+                    let total_points_b:number
+                    let total_points_a:number
+                    
+                    player_a.masteries.map(mastery => total_points_a += mastery.points)
+                    
+                    player_b.masteries.map(mastery => total_points_b += mastery.points)
+                    
+                    return total_points_b - total_points_a
+                })
+                setPlayers(rr2)     
+            }
+        }
+    }, [players, setPlayers]);
+    
     if (!players || players.length === 0) {
         return <EmptyPlayers />
     }
-
-	/* TODO: Order players by total mastery. Instead of players.map(), make:
-			ordered_players = players.sort
-		and then:
-			ordered_players.map( // etc... )
-	*/
 
     return (
         <Container title={'Mastery'} description={'Your 7 champions with most points'}>
